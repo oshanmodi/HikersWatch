@@ -48,25 +48,35 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("Location", location.toString());
 
                 String message = "";
-                message += "Location: "+location.getLatitude() + "\n\n";
-                message += "Longitude: "+location.getLongitude() +"\n\n";
-                message += "Accuracy: "+location.getAccuracy() +"\n\n";
-                Context context;
+                message += "Location: "+ String.format("%.2f",location.getLatitude()) + "\n\n";
+                message += "Longitude: "+ String.format("%.2f",location.getLongitude()) +"\n\n";
+                message += "Accuracy: "+ location.getAccuracy() +"\n\n";
+                message += "Altitude: " + location.getAltitude() + "\n\n";
                 Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
                 try{
                     List<Address> addressList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(),1);
                     if(addressList.size()>0 && addressList != null){
-                        String address = "";
+                        String address = "Address: \n";
                         Log.i("Address",addressList.get(0).toString());
 
-                        if(addressList.get(0).getAdminArea() != null){
-                            address += addressList.get(0).getAdminArea();
+                        if(addressList.get(0).getThoroughfare() != null){
+                            address += addressList.get(0).getThoroughfare() + " ";
                         }
-
+                        if(addressList.get(0).getLocality() != null){
+                            address += addressList.get(0).getLocality() + " \n";
+                        }
+                        if(addressList.get(0).getAdminArea() != null){
+                            address += addressList.get(0).getAdminArea() + " \n";
+                        }
+                        if(addressList.get(0).getPostalCode() != null){
+                            address += addressList.get(0).getPostalCode();
+                        }
+                        message += address;
                     }
                 } catch (Exception e){
                     e.printStackTrace();
                 }
+
                 locationTextView.setText(message);
             }
 
