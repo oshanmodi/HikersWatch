@@ -41,8 +41,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         locationTextView = findViewById(R.id.locationTextView);
-        locationTextView.setText("");
-        locationTextView.setVisibility(View.INVISIBLE);
+        locationTextView.setText("Fetching location info...");
+//        locationTextView.setVisibility(View.INVISIBLE);
 
         locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
         locationListener = new LocationListener() {
@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
                 } catch (Exception e){
                     e.printStackTrace();
                 }
-                locationTextView.setVisibility(View.VISIBLE);
+//                locationTextView.setVisibility(View.VISIBLE);
 
                 locationTextView.setText(message);
             }
