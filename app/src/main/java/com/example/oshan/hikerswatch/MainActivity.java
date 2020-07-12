@@ -30,9 +30,7 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-            if(ContextCompat.checkSelfPermission(getApplicationContext(),Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED){
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,0,locationListener);
-            }
+            startListening();
         }
     }
 
@@ -49,40 +47,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onLocationChanged(Location location) {
 //                Log.i("Location", location.toString());
-
-                String message = "";
-                message += "Location: "+ String.format("%.2f",location.getLatitude()) + "\n\n";
-                message += "Longitude: "+ String.format("%.2f",location.getLongitude()) +"\n\n";
-                message += "Accuracy: "+ String.format("%.1f",location.getAccuracy()) +"\n\n";
-                message += "Altitude: " + Math.round(location.getAltitude()) + "\n\n";
-                Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
-                try{
-                    List<Address> addressList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(),1);
-                    if(addressList.size()>0 && addressList != null){
-                        String address = "Address: \n";
-//                        Log.i("Address",addressList.get(0).toString());
-
-                        if(addressList.get(0).getThoroughfare() != null){
-                            address += addressList.get(0).getThoroughfare() + " ";
-                        }
-                        if(addressList.get(0).getLocality() != null){
-                            address += addressList.get(0).getLocality() + " \n";
-                        }
-                        if(addressList.get(0).getAdminArea() != null){
-                            address += addressList.get(0).getAdminArea() + " \n";
-                        }
-                        if(addressList.get(0).getPostalCode() != null){
-                            address += addressList.get(0).getPostalCode();
-                        }
-                        message += address;
-                    }
-                } catch (Exception e){
-                    e.printStackTrace();
-                }
-//                locationTextView.setVisibility(View.VISIBLE);
-
-                locationTextView.setText(message);
-            }
+                updateLocation(location);
+             }
 
             @Override
             public void onStatusChanged(String s, int i, Bundle bundle) {
@@ -104,7 +70,54 @@ public class MainActivity extends AppCompatActivity {
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},1);
         } else {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,0,locationListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListener);
+            Location prevLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+            if(prevLocation != null){
+                updateLocation(prevLocation);
+            }
         }
+    }
+
+    public void startListening(){
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)== PackageManager.PERMISSION_GRANTED) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        }
+    }
+    public void updateLocation(Location location){
+        Log.i("Location info", location.toString());
+
+        String message = "";
+        message += "Location: "+ String.format("%.2f",location.getLatitude()) + "\n\n";
+        message += "Longitude: "+ String.format("%.2f",location.getLongitude()) +"\n\n";
+        message += "Accuracy: "+ String.format("%.1f",location.getAccuracy()) +"\n\n";
+        message += "Altitude: " + Math.round(location.getAltitude()) + "\n\n";
+        Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+        try{
+            List<Address> addressList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(),1);
+            if(addressList.size()>0 && addressList != null){
+                String address = "Address: \n";
+//                        Log.i("Address",addressList.get(0).toString());
+
+                if(addressList.get(0).getThoroughfare() != null){
+                    address += addressList.get(0).getThoroughfare() + " ";
+                }
+                if(addressList.get(0).getLocality() != null){
+                    address += addressList.get(0).getLocality() + " \n";
+                }
+                if(addressList.get(0).getAdminArea() != null){
+                    address += addressList.get(0).getAdminArea() + " \n";
+                }
+                if(addressList.get(0).getPostalCode() != null){
+                    address += addressList.get(0).getPostalCode();
+                }
+                message += address;
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        locationTextView.setText(message);
+
     }
 }
